@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualisasi Sebaran Gempa Bumi Indonesia 2008-2023</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/MarkerCluster.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/MarkerCluster.Default.min.css" />
+    
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/leaflet.markercluster.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 15px;
+            padding: 15px;
+            height: calc(100vh - 100px);
+        }
+        
+        #map {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        #yearSlider {
+            flex: 1;
+            height: 6px;
+            cursor: pointer;
+        }
+        
+        #yearLabel {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+            font-size: 13px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .color-legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #333;
+        }
+        
+        #timelineChart {
+            max-height: 200px;
+            margin-top: 10px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 11px;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        button.secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        button.secondary:hover {
+            background: #d0d0d0;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .sidebar {
+                max-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌍 Visualisasi Sebaran Gempa Bumi Indonesia</h1>
+        <p>Data BMKG 2008-2023 | 92,415 Kejadian Gempa</p>
+    </div>
+    
+    <div class="container">
+        <div id="map"></div>
+        
+        <div class="sidebar">
+            <!-- Summary Card -->
+            <div class="card">
+                <h3>📊 Ringkasan Data</h3>
+                <div class="stats" id="summaryStats">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+            
+            <!-- Temporal Control -->
+            <div class="card">
+                <h3>📅 Kontrol Temporal</h3>
+                <div class="control-group">
+                    <div class="slider-container">
+                        <input type="range" id="yearSlider" min="2008" max="2023" value="2023" step="1">
+                        <span id="yearLabel">2023</span>
+                    </div>
+                    <small style="color: #666;">Filter data hingga tahun yang dipilih</small>
+                </div>
+            </div>
+            
+            <!-- Layer Control -->
+            <div class="card">
+                <h3>🎨 Tampilkan Layer</h3>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="showEarthquakes" checked>
+                        <span>Gempa Bumi</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="showAnomalies">
+                        <span>⚠️ Anomali Seismik</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="showHeatmap">
+                        <span>Heat Map Aktivitas</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Legend -->
+            <div class="card">
+                <h3>📌 Legenda Magnitude</h3>
+                <div class="color-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #3498db;"></div>
+                        <span>Minor (&lt;3)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #2ecc71;"></div>
+                        <span>Light (3-4)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f39c12;"></div>
+                        <span>Moderate (4-5)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e74c3c;"></div>
+                        <span>Strong (5-6)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #c0392b;"></div>
+                        <span>Major (≥6)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Timeline Chart -->
+            <div class="card">
+                <h3>📈 Timeline Kejadian</h3>
+                <canvas id="timelineChart"></canvas>
+            </div>
+            
+            <!-- Actions -->
+            <div class="card">
+                <div class="button-group">
+                    <button onclick="resetView()">Reset Peta</button>
+                    <button class="secondary" onclick="exportData()">Export</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ===== INITIALIZE MAP =====
+        const map = L.map('map').setView([-2.5, 118], 5);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // ===== DATA STORAGE =====
+        let allEarthquakes = [];
+        let allAnomalies = [];
+        let timelineData = [];
+        let summaryData = {};
+        
+        let markerClusterGroup = L.markerClusterGroup();
+        let anomalyMarkers = L.featureGroup();
+        let currentYear = 2023;
+        let timelineChart = null;
+        
+        // ===== COLOR MAPPING =====
+        function getMagnitudeColor(mag) {
+            if (mag < 3) return '#3498db';      // Blue
+            if (mag < 4) return '#2ecc71';      // Green
+            if (mag < 5) return '#f39c12';      // Orange
+            if (mag < 6) return '#e74c3c';      // Red
+            return '#c0392b';                    // Dark Red
+        }
+        
+        // ===== LOAD DATA =====
+        async function loadData() {
+            try {
+                // Load earthquakes
+                const eqRes = await fetch('data/earthquakes_sample.geojson');
+                const eqData = await eqRes.json();
+                allEarthquakes = eqData.features;
+                
+                // Load anomalies
+                const anomRes = await fetch('data/anomalies.geojson');
+                const anomData = await anomRes.json();
+                allAnomalies = anomData.features;
+                
+                // Load timeline
+                const tlRes = await fetch('data/timeline.json');
+                timelineData = await tlRes.json();
+                
+                // Load summary
+                const sumRes = await fetch('data/summary.json');
+                summaryData = await sumRes.json();
+                
+                console.log('Data loaded successfully');
+                renderMap();
+                updateSummary();
+                renderTimeline();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('Gagal memuat data. Pastikan file data ada di folder "data/"');
+            }
+        }
+        
+        // ===== RENDER MAP =====
+        function renderMap() {
+            // Clear existing markers
+            markerClusterGroup.clearLayers();
+            
+            // Filter earthquakes by year
+            const filtered = allEarthquakes.filter(eq => {
+                return eq.properties.year == currentYear;
+            });
+            
+            // Add earthquake markers
+            filtered.forEach(feature => {
+                const coords = feature.geometry.coordinates;
+                const props = feature.properties;
+                const color = getMagnitudeColor(props.magnitude);
+                
+                const marker = L.circleMarker([coords[1], coords[0]], {
+                    radius: Math.max(4, props.magnitude * 2),
+                    fillColor: color,
+                    color: '#333',
+                    weight: 1,
+                    opacity: 0.7,
+                    fillOpacity: 0.7
+                });
+                
+                const popupText = `
+                    <div style="font-size: 12px;">
+                        <strong>${props.region}</strong><br>
+                        Magnitude: <strong>${props.magnitude.toFixed(1)}</strong><br>
+                        Kedalaman: <strong>${props.depth.toFixed(0)} km</strong><br>
+                        Tanggal: ${props.date}<br>
+                        Waktu: ${props.time}
+                    </div>
+                `;
+                marker.bindPopup(popupText);
+                markerClusterGroup.addLayer(marker);
+            });
+            
+            if (!map.hasLayer(markerClusterGroup)) {
+                map.addLayer(markerClusterGroup);
+            }
+            
+            // Fit bounds
+            if (filtered.length > 0) {
+                const bounds = L.latLngBounds(
+                    filtered.map(eq => [eq.geometry.coordinates[1], eq.geometry.coordinates[0]])
+                );
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+        
+        // ===== RENDER ANOMALIES =====
+        function renderAnomalies() {
+            anomalyMarkers.clearLayers();
+            
+            allAnomalies.forEach(feature => {
+                const coords = feature.geometry.coordinates;
+                const props = feature.properties;
+                
+                const marker = L.circleMarker([coords[1], coords[0]], {
+                    radius: 8,
+                    fillColor: '#e74c3c',
+                    color: '#c0392b',
+                    weight: 2,
+                    opacity: 0.9,
+                    fillOpacity: 0.6,
+                    dashArray: '5, 5'
+                });
+                
+                const popupText = `
+                    <div style="font-size: 12px;">
+                        <strong>⚠️ ANOMALI SEISMIK</strong><br>
+                        Periode: ${props.period}<br>
+                        Jumlah Gempa: ${props.event_count}<br>
+                        Magnitude Max: ${props.mag_max.toFixed(1)}<br>
+                        Anomaly Score: ${props.anomaly_score.toFixed(3)}
+                    </div>
+                `;
+                marker.bindPopup(popupText);
+                anomalyMarkers.addLayer(marker);
+            });
+        }
+        
+        // ===== UPDATE SUMMARY =====
+        function updateSummary() {
+            const html = `
+                <div class="stat-box">
+                    <div class="stat-label">Total Gempa</div>
+                    <div class="stat-value">${summaryData.total_earthquakes?.toLocaleString() || '—'}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Magnitude Max</div>
+                    <div class="stat-value">${summaryData.magnitude?.max?.toFixed(1) || '—'}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Avg Magnitude</div>
+                    <div class="stat-value">${summaryData.magnitude?.mean?.toFixed(2) || '—'}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Avg Depth</div>
+                    <div class="stat-value">${summaryData.depth?.mean?.toFixed(0) || '—'} km</div>
+                </div>
+            `;
+            document.getElementById('summaryStats').innerHTML = html;
+        }
+        
+        // ===== RENDER TIMELINE CHART =====
+        function renderTimeline() {
+            const ctx = document.getElementById('timelineChart').getContext('2d');
+            
+            if (timelineChart) {
+                timelineChart.destroy();
+            }
+            
+            // Group by year for chart
+            const yearlyData = {};
+            timelineData.forEach(month => {
+                const year = month.month.substring(0, 4);
+                if (!yearlyData[year]) {
+                    yearlyData[year] = { events: 0, mag_max: 0 };
+                }
+                yearlyData[year].events += month.events;
+                yearlyData[year].mag_max = Math.max(yearlyData[year].mag_max, month.mag_max);
+            });
+            
+            const years = Object.keys(yearlyData).sort();
+            const events = years.map(y => yearlyData[y].events);
+            
+            timelineChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'Gempa/Tahun',
+                        data: events,
+                        backgroundColor: '#667eea',
+                        borderColor: '#5568d3',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { font: { size: 10 } }
+                        },
+                        x: {
+                            ticks: { font: { size: 9 } }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // ===== EVENT LISTENERS =====
+        document.getElementById('yearSlider').addEventListener('input', (e) => {
+            currentYear = parseInt(e.target.value);
+            document.getElementById('yearLabel').textContent = currentYear;
+            renderMap();
+        });
+        
+        document.getElementById('showEarthquakes').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                map.addLayer(markerClusterGroup);
+            } else {
+                map.removeLayer(markerClusterGroup);
+            }
+        });
+        
+        document.getElementById('showAnomalies').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                renderAnomalies();
+                map.addLayer(anomalyMarkers);
+            } else {
+                map.removeLayer(anomalyMarkers);
+            }
+        });
+        
+        // ===== UTILITY FUNCTIONS =====
+        function resetView() {
+            document.getElementById('yearSlider').value = 2023;
+            currentYear = 2023;
+            document.getElementById('yearLabel').textContent = 2023;
+            renderMap();
+        }
+        
+        function exportData() {
+            const data = {
+                earthquakes: allEarthquakes.length,
+                anomalies: allAnomalies.length,
+                year_range: `${summaryData.date_range?.start} to ${summaryData.date_range?.end}`,
+                timestamp: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gempa_data.json';
+            a.click();
+        }
+        
+        // ===== INITIALIZE =====
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
