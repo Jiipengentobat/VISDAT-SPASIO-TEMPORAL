@@ -29,7 +29,7 @@ Indonesia merupakan negara dengan tingkat seismisitas tertinggi di dunia, berada
 Proyek ini mengembangkan **aplikasi visualisasi interaktif berbasis web** yang memungkinkan eksplorasi pola spasio-temporal gempa bumi Indonesia serta mengintegrasikan teknik **machine learning untuk deteksi anomali** dalam aktivitas seismik.
 
 ### Capaian Pembelajaran
-✓ Identifikasi dan akuisisi data spasio-temporal terbuka (BMKG Open Data)  
+✓ Identifikasi dan akuisisi data spasio-temporal terbuka (KAGGLE)  
 ✓ Pra-pemrosesan dan feature engineering untuk data seismik  
 ✓ Perancangan & implementasi aplikasi visualisasi interaktif  
 ✓ Integrasi machine learning (Isolation Forest) untuk deteksi anomali  
