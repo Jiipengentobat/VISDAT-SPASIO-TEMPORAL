@@ -2,7 +2,7 @@
 
 **Mata Kuliah**: Visualisasi Data Spasio-Temporal  
 **Topik**: Visualisasi Sebaran dan Tren Gempa Bumi Indonesia  
-**Data**: BMKG Katalog Gempa (92,415 kejadian)  
+**Data**: KAGGLE Katalog Gempa (92,415 kejadian)  
 **Periode**: November 2008 - Januari 2023  
 **Teknologi**: HTML5 + Leaflet.js + Chart.js + Python ML
 
