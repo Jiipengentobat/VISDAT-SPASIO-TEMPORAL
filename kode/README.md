@@ -2,7 +2,7 @@
 
 **Mata Kuliah**: Visualisasi Data Spasio-Temporal  
 **Topik**: Visualisasi Sebaran dan Tren Gempa Bumi Indonesia  
-**Data**: BMKG Katalog Gempa (92,415 kejadian)  
+**Data**: KAGGLE Katalog Gempa (92,415 kejadian)  
 **Periode**: November 2008 - Januari 2023  
 **Teknologi**: HTML5 + Leaflet.js + Chart.js + Python ML
 
@@ -29,7 +29,7 @@ Indonesia merupakan negara dengan tingkat seismisitas tertinggi di dunia, berada
 Proyek ini mengembangkan **aplikasi visualisasi interaktif berbasis web** yang memungkinkan eksplorasi pola spasio-temporal gempa bumi Indonesia serta mengintegrasikan teknik **machine learning untuk deteksi anomali** dalam aktivitas seismik.
 
 ### Capaian Pembelajaran
-✓ Identifikasi dan akuisisi data spasio-temporal terbuka (BMKG Open Data)  
+✓ Identifikasi dan akuisisi data spasio-temporal terbuka (KAGGLE)  
 ✓ Pra-pemrosesan dan feature engineering untuk data seismik  
 ✓ Perancangan & implementasi aplikasi visualisasi interaktif  
 ✓ Integrasi machine learning (Isolation Forest) untuk deteksi anomali  
@@ -238,7 +238,7 @@ Contoh top anomalies:
 ## 📊 Data & Analisis
 
 ### Sumber Data
-- **BMKG Open Data**: Katalog Gempa Bumi Indonesia
+- **Kgglw**: Katalog Gempa Bumi Indonesia
 - **Format**: CSV (13 kolom)
 - **Records**: 92,415 (setelah cleaning)
 - **Periode**: November 2008 - Januari 2023 (14+ tahun)
@@ -313,13 +313,6 @@ Top Regions:
 - `data/gempa_anomalies.csv` - Hasil ML
 - Web JSON files: GeoJSON, timeline, summary, anomalies
 
-✅ **4. Artikel Ilmiah**
-- Format: 4,000-6,000 kata
-- Struktur: Abstrak, Pendahuluan, Tinjauan Pustaka, Metodologi, Hasil & Pembahasan, Kesimpulan, Daftar Pustaka
-- Minimal 15 referensi
-- 3+ screenshot aplikasi
-- Tersedia dalam format .docx & .pdf
-
 ✅ **5. Video Penjelasan**
 - Durasi: Max 5 menit
 - Konten: Demo aplikasi, penjelasan ML, interpretasi hasil
@@ -332,44 +325,10 @@ Top Regions:
 
 ---
 
-## 🔍 Troubleshooting
-
-### Data file tidak terload
-**Solusi**:
-1. Pastikan file ada di folder `web/data/`
-2. Jalankan conversion scripts:
-```bash
-cd analysis
-python3 1_data_preprocessing.py
-python3 2_anomaly_detection.py
-python3 3_data_conversion.py
-```
-3. Refresh browser (Ctrl+F5 untuk hard refresh)
-
-### Browser error "CORS policy"
-**Solusi**:
-1. Jangan buka file langsung dengan double-click
-2. Gunakan HTTP server (lihat section "Cara Menjalankan")
-3. Pastikan tidak ada blocking dari antivirus/firewall
-
-### Chart tidak muncul
-**Solusi**:
-1. Check console browser (F12 > Console)
-2. Pastikan Chart.js CDN accessible (perlu internet)
-3. Refresh halaman
-
-### Peta kosong/marker tidak muncul
-**Solusi**:
-1. Tunggu hingga data selesai loading (cek console)
-2. Klik tombol "Reset Peta"
-3. Periksa browser console untuk error messages
-
----
-
 ## 📖 Referensi Singkat
 
 ### Publikasi & Dataset
-- BMKG. (2024). *Katalog Gempa Bumi Indonesia*. Badan Meteorologi Klimatologi dan Geofisika.
+- KAGGLE
 - Lay, T., & Wallace, T. C. (1995). *Modern Global Seismology*. Academic Press.
 - Bird, P. (2003). An updated digital model of plate boundaries. Geochemistry, Geophysics, Geosystems, 4(3).
 
@@ -382,17 +341,3 @@ python3 3_data_conversion.py
 
 ---
 
-## 👤 Informasi Penulis
-- **Mata Kuliah**: Visualisasi Data Spasio-Temporal
-- **Semester**: [Your semester]
-- **Tahun**: 2024
-
----
-
-## 📝 License
-Dataset BMKG digunakan untuk tujuan pendidikan dan penelitian. Aplikasi ini dibuat sebagai tugas akhir.
-
----
-
-**Last Updated**: Januari 2024  
-**Status**: ✅ Ready for Submission
